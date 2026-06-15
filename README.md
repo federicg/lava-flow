@@ -49,13 +49,13 @@ The simulation is configured via JSON input files. Example input files are provi
 
 ```bash
 # Lava flow simulation
-./lava-flow glisX_input_lava.json
+./lava-flow ../glisX_input_lava.json
 
 # Lava pouring scenario
-./lava-flow glisX_input-lava-pouring.json
+./lava-flow ../glisX_input-lava-pouring.json
 
 # Travelling vortex benchmark
-./lava-flow glisX_input-lava-travelling-vortex.json
+./lava-flow ../glisX_input-lava-travelling-vortex.json
 ```
 
 Once runned the code, call from the build directory
