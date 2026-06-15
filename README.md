@@ -16,12 +16,20 @@ All dependencies are downloaded and built automatically by CMake:
 
 The following must be available on your system before building:
 
-- CMake ≥ 3.17
-- MPI compilers: `mpicc`, `mpicxx`, `mpif90`
-- OpenMP-capable compilers (GCC recommended)
-- MUMPS and its dependencies: `dmumps`, `mumps_common`, `metis`, `pord`, `esmumps`, `scotch`, `scotcherr`, `scalapack`, `openblas`
+- CMake ≥ 3.17 (loaded: cmake/3.30.5)
+- MPI compilers: `mpicc`, `mpicxx`, `mpif90` (loaded: openmpi/4.1.7)
+- OpenMP-capable compilers — GCC recommended (loaded: gcc/12.2.0)
+- Fortran compiler: `gfortran` (included with GCC)
 - Standard build tools: `make`, `autoconf`, `automake`, `libtool`
-- Fortran compiler (`gfortran`)
+- MUMPS and its dependencies (loaded: mumps):
+  - `dmumps`, `mumps_common`, `pord`
+  - `metis/5.1.0`, `parmetis/4.0.3`
+  - `scotch/7.0.4`, `scotcherr`, `esmumps`
+  - `scalapack` (loaded: netlib-scalapack/2.2.0)
+  - `openblas/0.3.28`
+- p4est/2.8 (adaptive mesh refinement)
+- Lua/5.4.6 (if used for configuration/scripting)
+- `ncurses/6.5`, `readline/8.2`, `pcre/8.45` (terminal/scripting dependencies)
 
 ## Building
 
