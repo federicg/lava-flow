@@ -1,7 +1,7 @@
 // 1: 10.1016/j.jcp.2024.112798
 // 2: 10.1016/j.camwa.2025.02.014
-// 3: Table 2
-// 4: Table 3
+// 3: https://arxiv.org/abs/2509.09460 Table 2
+// 4: https://arxiv.org/abs/2509.09460 Table 3
 #define SET_COEFFICIENTS 4
 
 // FLUX_MODEL: selects the physical model
