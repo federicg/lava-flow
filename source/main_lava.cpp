@@ -434,6 +434,7 @@ int main (int argc, char **argv)
     bim2a_solution_with_ghosts (tmsh, incr, replace_op, ordUy, false);
     bim2a_solution_with_ghosts (tmsh, incr, replace_op, ordTh);
 
+
     if (is_initial_refinement)
     {
 
@@ -580,6 +581,7 @@ int main (int argc, char **argv)
     Q1 soldd_dyn               = sol;
     Q1 sol_2_dyn               = sol;
     Q1 incr_dyn                = incr;
+    Q1 incr_vent_dyn           = incr;
     Q1 incr_second_dyn         = incr;
     Q1 P_plus_dyn              = incr;
     Q1 P_minus_dyn             = incr;  
@@ -595,6 +597,7 @@ int main (int argc, char **argv)
             soldd_dyn, 
             sol_2_dyn,
             incr_dyn,
+            incr_vent_dyn,
             incr_second_dyn,
             incr_anti_diff_dyn,
             P_plus_dyn, 
@@ -781,7 +784,7 @@ int main (int argc, char **argv)
             full_time_vector.push_back (time);
         }
 
-        // first step!
+        // first step computes the q^(n,2)
         for (auto quadrant = tmsh.begin_quadrant_sweep ();
                 quadrant != tmsh.end_quadrant_sweep (); ++quadrant)
         {
@@ -829,6 +832,9 @@ int main (int argc, char **argv)
 
         incr_dyn.get_owned_data ().assign (incr_dyn.get_owned_data ().size (), 0.0);
         incr_dyn.assemble (replace_op);
+ 
+        incr_vent_dyn.get_owned_data ().assign (incr_vent_dyn.get_owned_data ().size (), 0.0);
+        incr_vent_dyn.assemble (replace_op);
 
         // second order correction
         for (auto quadrant = tmsh.begin_quadrant_sweep ();
@@ -837,8 +843,9 @@ int main (int argc, char **argv)
             stp.second_step(quadrant);
         }
         incr_dyn.assemble ();
+        incr_vent_dyn.assemble ();
 
-        // Compute here the second step solution!
+        // Compute here the second step solution!, i.e., q^(n,3)
         for (auto kk = 0; kk < incr_dyn.get_owned_data ().size (); kk+=4)
         {
             stp.solve_non_lin(kk);

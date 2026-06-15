@@ -19,6 +19,7 @@ public:
              Q1& soldd,
              Q1& sol_2,
              Q1& incr,
+             Q1& incr_vent,
              Q1& incr_second,
              std::vector<std::array<double,4>>& incr_anti_diff,
              Q1& P_plus,
@@ -174,6 +175,7 @@ public:
   Q1& soldd;
   Q1& sol_2;
   Q1& incr;
+  Q1& incr_vent;
   Q1& incr_second;
   std::vector<std::array<double,4>>& incr_anti_diff;
   Q1& P_plus;
