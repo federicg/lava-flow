@@ -15,6 +15,8 @@
 #include "Taylor_Galerkin_lava.h"
 
 using json = nlohmann::json;
+using Q1  = q1_vec<distributed_vector>;  // Typedef for distributed q_1 vector
+using Q0  = distributed_vector; // Typedef for local q_0 vector
 
 static constexpr char VARNAME_1[255] = "dem"; 
 
@@ -30,7 +32,6 @@ static int uniform_refinement (tmesh::quadrant_iterator q)
 
 static int hanging_refinement (tmesh::quadrant_iterator quadrant)
 {
-
     double x_minus, x_plus, y_minus, y_plus;
     x_minus = quadrant->p (0, 0);
     x_plus  = quadrant->p (0, 1);
@@ -46,39 +47,30 @@ static int hanging_refinement (tmesh::quadrant_iterator quadrant)
 }
 
 
-inline static int raster_2_vector(const double& i_x,
-        const double& i_y)
+inline static int raster_2_vector(const int i_x, const int i_y)
+{ return(i_y + Ny*i_x); }
+
+static std::array<int,3> global_coord_2_raster(const double x,
+        const double y)
 {
-    return(i_y + Ny*i_x);
-}
-
-static std::array<int,3> global_coord_2_raster(const double& x,
-        const double& y)
-{
-    static double i_x;
-    static double i_y;
-    static int ii;
-
-
     // nearest neighbor
-    i_x =   std::round(x / res);
-    i_y = - std::round(y / res) + (Ny-1);
+    const int i_x = static_cast<int>(std::round(x / res));
+    const int i_y = static_cast<int>(-std::round(y / res)) + (Ny-1);
+    const int ii  = raster_2_vector(i_x, i_y);
 
-    ii = raster_2_vector(i_x,i_y);
-
-    return(std::array<int,3>{{ ii,int(i_x),int(i_y) }});
+    return(std::array<int,3>{{ ii, i_x, i_y }});
 }
 
-
-inline static double raster_value(const double& x,
-        const double& y)
+inline static double raster_value(const double x, const double y)
 {
     // bilinear interp.
     const double ix = x/res;
     const double iy = -y/res + (Ny-1);
 
-    const std::array<double,2> ix_q = {std::floor(ix), std::ceil (ix)}; 
-    const std::array<double,2> iy_q = {std::floor(iy), std::ceil (iy)};
+    const std::array<int,2> ix_q = {static_cast<int>(std::floor(ix)), 
+        static_cast<int>(std::ceil (ix))}; 
+    const std::array<int,2> iy_q = {static_cast<int>(std::floor(iy)), 
+        static_cast<int>(std::ceil (iy))};
 
     const auto Dx_adi = ix_q[1]-ix_q[0];
     const auto Dy_adi = iy_q[1]-iy_q[0];
@@ -98,19 +90,16 @@ inline static double raster_value(const double& x,
     return(gamma[0]+gamma[1]+gamma[2]+gamma[3]);
 }
 
-inline double dem_fun (const double& xx, const double& yy)
+inline double dem_fun (const double xx, const double yy)
 {
-    return(0);
-    //return(raster_value(xx,yy,dem));
+#if SET_TEST == 11 // WB test for the set of nonlinear equations
+    return (xx>3 && xx<7 && yy>3 && yy<7) ? 5.0 * std::exp(-2.0/5.0 * (std::pow(xx-L/2.0,2) + std::pow(yy-H/2.0,2))) : 0;
+#endif
+    return 0;
+    //return(raster_value(xx,yy));
 }
 
-
-
-using Q1  = q1_vec<distributed_vector>;  // Typedef for distributed q_1 vector
-using Q0  = distributed_vector; // Typedef for local q_0 vector
-
-
-#if SET_TEST == 1 
+#if SET_TEST == 12 
 // Parameters
 static constexpr double h0     = 1.0;
 static constexpr double hmin   = 0.9;
@@ -129,83 +118,32 @@ auto omega = [](double r, double g, double rho) -> double {
 #endif
 
 
-inline double h0_fun (const double& xx, const double& yy, const double& g) 
+inline double h0_fun (const double xx, const double yy, const double g) 
 {
     double h_ini = 0;
-
-    // return(10. - dem_fun(xx,yy));
-
-#if SET_TEST == 1 
+    
+#if SET_TEST == 11
+    h_ini = 10. - dem_fun(xx,yy);
+#elif SET_TEST == 12 
     double r     = std::sqrt((xx-x_0)*(xx-x_0) + (yy-y_0)*(yy-y_0));
     double rho   = M_PI*r/r0; 
     double corr = 4.;
     auto H_vortex = [](double s) { 
         return std::cos(2.*s)/8. + s*std::sin(2.*s)/4. + std::cos(2.*s)*std::cos(2.*s)/64. + 3.*s*s/16. + s*std::cos(2.*s)*std::sin(2.*s)/16.;
     };
-    
     h_ini = h0 - (r<=r0)*1./g*(2.*Gamma(g)*r0/M_PI)*(2.*Gamma(g)*r0/M_PI)*(H_vortex(M_PI/2.) - H_vortex(rho/2.))*corr;
-
-#elif SET_TEST == 2 
-    h_ini = 1. + 3.*std::exp(-0.5*10*( (xx-L/4.)*(xx-L/4.) )/(0.2*L/2.)/(0.2*L/2.));
+#elif SET_TEST == 21 
+    h_ini = 1. + 3.*std::exp(-5.*( (xx-L/4.)*(xx-L/4.) )/(.1*L)/(.1*L));
 #endif
 
     return (h_ini);
-
-    //return(xx/L*1500);
-    //return( std::abs(xx-L/2.)<=7. && std::abs(yy-H/2.)<=7.5 ? 3 : 0. );
-    //return(std::sqrt(std::pow(xx-L/2.,2.) + std::pow(yy-H/2.,2.))<=7.5 ? 3. : 0.  );
-    //return (xx<=L/2. && xx>=L/4. ? 3. : 0.);
-    //return ( 1.+.1*std::exp(-0.5*( std::pow(xx-L/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return ( 1.+1.*std::exp(-0.5*( std::pow(yy-H/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return ( 1.+.1*std::exp(-0.5*( std::pow(xx-L/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return ( 1.+.1*std::exp(-1.*( std::pow(xx-L/2.,2.)+std::pow(yy-H/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return( std::abs(xx-L/2.)<=.5 && std::abs(yy-H/2.)<=.5 ? 2 : 1. );
-    //return( xx<=L/2. && yy<=H/2. ? 3. : 0. );  
-    //return (xx<=L/4. && yy<=H/4. ? 2. : 1.); 
-    //return(std::abs(xx-L/2.)<=0.5 && std::abs(yy-L/2.)<=0.5 ? 2 : 1. );  
-    //return(std::sqrt(std::pow(xx-L/2.,2.) + std::pow(yy-H/2.,2.))<=.5 ? 2. : 1. );
-    //return(std::sqrt(std::pow(xx-L/2.,2.) + std::pow(yy-H/2.,2.))<=L/4. ? 2 : 0. ); 
-    //return(xx<=L/2. ? 2 : 1. );
-
-
-    //const double HH = 30.;
-    //const double omega = (std::pow((xx-.5*L)/L,2.) + std::pow((yy-.5*L)/L,2.)) <= std::pow((.2 + .01 * std::sin(10.*M_PI*(yy-.5*L)/L)),2.) ? 1. : 0.;
-    //return(std::max (0., std::min (.6*500-(500 - 500 * xx/L), HH)) * omega); 
-
-
-
-
-    //return(std::sqrt(std::pow(xx-L/2.,2.) + std::pow(yy-H/2.,2.))<=150 ? 70 : 0. ); 
-    //return(10. - dem[global_coord_2_raster(xx,yy)[0]]);
-    //return(10. - (5.+xx/L));
-    //return(1.);
-    //return(10. - dem_fun(xx,yy));
-
-    //return(basin_mask[global_coord_2_raster(xx,yy)[0]]==1 ? 38. : 0.);
-    //return (xx<=L/2. ? 70 : 7.); //(xx<=L/2. ? 70 : 0.);
-    //return ( 1.+1.*std::exp(-0.5*( std::pow(xx-L/2.,2.)+std::pow(yy-H/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return ( 0.+1.*std::exp(-0.5*( std::pow(xx-L/2.,2.)+std::pow(yy-H/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-
-
-
-    if (xx>L*1./4. && xx<L*3./4. && yy >H*1./4. && yy <H*3./4.) //(xx>L*3./10. && xx<7./10.*L)
-    {
-        //return (1.*std::exp(-0.5*( std::pow(xx-L/2.,2.)+std::pow(yy-H/2.,2.) )/std::pow(0.2*L/2.,2.) ));
-        return 40.;
-    } 
-
-    //  if (xx>L/4 && xx<3/4*L && yy>H/4 && yy <3/4*H)
-    //  {
-    //    return 2;
-    //  }
-    return 0.;
 } 
 
-inline double Ux0_fun (const double& xx, const double& yy, const double& g)  
+inline double Ux0_fun (const double xx, const double yy, const double g)  
 { 
     double U_ini = 0.;
 
-#if SET_TEST == 1 
+#if SET_TEST == 12
     double r       = std::sqrt((xx-x_0)*(xx-x_0) + (yy-y_0)*(yy-y_0));
     double rho     = M_PI*r/r0;
     U_ini   = h0_fun(xx,yy,g)*(u_inf - (yy - y_0)*omega(r,g,rho));
@@ -214,15 +152,14 @@ inline double Ux0_fun (const double& xx, const double& yy, const double& g)
     return (U_ini);
 }
 
-inline double Uy0_fun (const double& xx, const double& yy, const double& g) 
+inline double Uy0_fun (const double xx, const double yy, const double g) 
 { 
     double V_ini = 0.;
 
-#if SET_TEST == 1 
+#if SET_TEST == 12
     double r       = std::sqrt((xx-x_0)*(xx-x_0) + (yy-y_0)*(yy-y_0));
     double rho     = M_PI*r/r0;
     V_ini   = h0_fun(xx,yy,g)*(xx - x_0)*omega(r,g,rho);
-
 #endif
 
     return (V_ini);
@@ -230,6 +167,9 @@ inline double Uy0_fun (const double& xx, const double& yy, const double& g)
 
 inline double Th0_fun (double xx, double yy)
 {
+#if SET_TEST == 11
+    return 1; // in km \cdot K
+#endif
     return 0.;
 }
 
@@ -238,7 +178,6 @@ template <class T>
 void quadrant_marker_list (tmesh::quadrant_iterator& q, 
         const T& only_h, const T& only_Ux, const T& only_Uy, const double& dt, std::set<int>& output)
 {
-
     std::array<double,4> h_current = {0,0,0,0};
     std::array<double,2> vel       = {0,0};
     for (int ii = 0; ii < 4; ++ii)
@@ -265,7 +204,6 @@ void quadrant_marker_list (tmesh::quadrant_iterator& q,
 
     const bool basin_check = ((h_current[0]+h_current[1]+h_current[2]+h_current[3])> h_min && 
             (h_current[0]*h_current[1]*h_current[2]*h_current[3])<=h_min) ? true : false;
-
 
     if (basin_check)
     {
@@ -297,12 +235,10 @@ void quadrant_marker_list (tmesh::quadrant_iterator& q,
             const bool cond3 = ( xx_fin - x1)>=0;
             const bool cond4 = (-xx_fin + x2)>=0;
 
-
             if (cond1 && cond2 && cond3 && cond4) // the point is internal to the current quadrant
             {
                 output.insert(std::get<1>(qq));
             }
-
         }
     }
 }
@@ -452,7 +388,6 @@ int main (int argc, char **argv)
     {
         double xx_c=quadrant->centroid(0);
         double yy_c=quadrant->centroid(1);
-
 
         for (int ii = 0; ii < 4; ++ii)
         {
@@ -723,7 +658,6 @@ int main (int argc, char **argv)
     sprintf(filename, arr, 0); 
     tmsh.octbin_export (filename, Z_dyn);
 
-
     std::vector<double> full_time_vector;
     full_time_vector.reserve (static_cast<int> (T/DELTAT));
     std::vector<double> save_time_vector;
@@ -819,7 +753,7 @@ int main (int argc, char **argv)
             }
             MPI_Allreduce (MPI_IN_PLACE, static_cast<void*> (&stp.nu_htot), 1, MPI_DOUBLE, MPI_SUM, tmsh.comm);
 
-            const double local_estimator_time_tolerance = 1e-5;
+            static constexpr double local_estimator_time_tolerance = 1e-5;
 
             const double candidate_dt = local_estimator_time_tolerance/std::sqrt(stp.nu_htot)*(stp.time-stp.timed);
             stp.set_dt( (stp.nu_htot>0 && candidate_dt<stp.dt) ? candidate_dt : stp.dt );
@@ -872,8 +806,7 @@ int main (int argc, char **argv)
         // low order solution
         for (auto kk = 0; kk < incr_dyn.get_owned_data ().size (); kk++)
         {
-            sol_dyn.get_owned_data ()[kk] += stp.dt_expl_32*incr_dyn.get_owned_data ()[kk]/mass_dyn.get_owned_data ()[kk] 
-                + 0*stp.dt_32     *incr_second_dyn.get_owned_data ()[kk]/mass_dyn.get_owned_data ()[kk];
+            sol_dyn.get_owned_data ()[kk] += stp.dt_expl_32*incr_dyn.get_owned_data ()[kk]/mass_dyn.get_owned_data ()[kk];
         }
         sol_dyn.assemble(replace_op); 
 
@@ -1034,7 +967,6 @@ int main (int argc, char **argv)
                 return (basin_check); 
             };
 
-            // tmsh.set_metrics_marker_flux_lim (estimator, estimator_flux, dry_function, mesh_size_dry, mesh_size_wet, mesh_size_interface, tolerance_space_adapt, x_v, y_v, mesh_size_vent, 6, 0, 0);
             tmsh.set_metrics_marker_flux_lim (estimator, estimator_flux, dry_function, mesh_size_dry, mesh_size_wet, mesh_size_interface, tolerance_space_adapt, 6, 0, 0);
             tmsh.metrics_refine (1e6);  // RAFFINAMENTO (arg is max element)
 
@@ -1141,7 +1073,6 @@ int main (int argc, char **argv)
             space_adapt_count = 0.0;
         }
     }
-
 
     if (rank == 0)
     {
