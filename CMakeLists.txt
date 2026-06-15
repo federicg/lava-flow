@@ -57,7 +57,8 @@ ExternalProject_Add(
   PREFIX ${DEPS_PREFIX}/octave_file_io
   BUILD_IN_SOURCE TRUE
 
-  CONFIGURE_COMMAND ./autogen.sh && ./configure --with-octave-home=${DEPS_PREFIX}/octave/install/bin --prefix=${DEPS_PREFIX}/octave_file_io/install
+  CONFIGURE_COMMAND ./autogen.sh && ./configure --with-octave-home=${DEPS_PREFIX}/octave/install/bin CPPFLAGS=-I${DEPS_PREFIX}/octave/install/include/octave-6.2.0 
+  --prefix=${DEPS_PREFIX}/octave_file_io/install
   BUILD_COMMAND $(MAKE)
   INSTALL_COMMAND $(MAKE) install
 
