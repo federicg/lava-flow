@@ -1,14 +1,20 @@
-
-//
+// 1: 10.1016/j.jcp.2024.112798
+// 2: 10.1016/j.camwa.2025.02.014
+// 3: Table 2
+// 4: Table 3
 #define SET_COEFFICIENTS 4
 
-// 1: Depth-Integrated lava model,
-// 2: Linear advection equation
+// FLUX_MODEL: selects the physical model
+//   1: Depth-integrated lava model
+//   2: Linear advection equation
 #define FLUX_MODEL 1
 
-// 11: WB test for FLUX_MODEL=1
-// 12: Travelling vortex for FLUX_MODEL=1
-// 13: Pouring of lava from a vent over a flat topography, with constant vent discharge
-// 14: Pouring of lava from a vent over a flat topography, with time-dependent vent discharge
-// 21: Traveling wave available just in case FLUX_MODEL=2
-#define SET_TEST 12 
+// SET_TEST: selects the test case (first digit must match FLUX_MODEL)
+//   FLUX_MODEL=1:
+//     11: Well-balanced test
+//     12: Travelling vortex
+//     13: Lava pouring from a vent over flat topography, constant discharge
+//     14: Lava pouring from a vent over flat topography, time-dependent discharge
+//   FLUX_MODEL=2:
+//     21: Travelling wave
+#define SET_TEST 12

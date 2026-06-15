@@ -1174,7 +1174,7 @@ void TG2_scheme::set_dt (const double dt_)
     dt = dt_; 
 
 #if SET_COEFFICIENTS == 1 // 10.1016/j.jcp.2024.112798
-                          // set the implicit part coefficients
+    // set the implicit part coefficients
     dt_22 = dt*.5;
     dt_33 = dt_22;
     dt_21 = 0.;
@@ -1199,7 +1199,7 @@ void TG2_scheme::set_dt (const double dt_)
     b_2 = dt_32;
     b_3 = dt_33;
 #elif SET_COEFFICIENTS == 2 // 10.1016/j.camwa.2025.02.014
-                            // set the implicit part coefficients
+    // set the implicit part coefficients
     dt_22 = dt*(1.-std::sqrt(2.)*.5);
     dt_33 = dt_22;
     dt_21 = dt*(-1.+std::sqrt(2.))*.5;
@@ -1224,7 +1224,7 @@ void TG2_scheme::set_dt (const double dt_)
     b_2 = dt_32;
     b_3 = dt_33;
 #elif SET_COEFFICIENTS == 3 // Table 2
-                            // set the implicit part coefficients
+    // set the implicit part coefficients
     dt_22 = dt*(1.-std::sqrt(2.)*.5);
     dt_33 = dt_22;
     dt_21 = 0;
@@ -1249,7 +1249,7 @@ void TG2_scheme::set_dt (const double dt_)
     b_2 = dt_32;
     b_3 = dt_22;
 #elif SET_COEFFICIENTS == 4 // Table 3
-                            // set the implicit part coefficients
+    // set the implicit part coefficients
     dt_22 = dt*(1.-std::sqrt(2.)*.5);
     dt_33 = dt_22;
     dt_21 = 0;
