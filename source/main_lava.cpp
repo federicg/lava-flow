@@ -16,9 +16,6 @@
 
 using json = nlohmann::json;
 
-// mpirun -np 4 main_lava glisX_input-lava-travelling-vortex.json >out_lava.txt
-// mpirun -np 4 main_lava glisX_input-lava-pouring.json
-
 static constexpr char VARNAME_1[255] = "dem"; 
 
 static std::vector<double> dem;
@@ -103,62 +100,14 @@ inline static double raster_value(const double& x,
 
 inline double dem_fun (const double& xx, const double& yy)
 {
-
-    // return(0);
-    //return ( 1.+.1*std::exp(-0.5*( std::pow(xx-L/2.,2.) )/std::pow(0.2*L/2.,2.) ) );
-    //return(-std::tan(2.5*M_PI/180)*xx+L);
-    // return(raster_value(xx,yy));
-
-    // return (yy>3 && yy<7) ? 1 : 0; 
-    // return (xx>3 && xx<7 && yy>3 && yy<7) ? 5.0 * std::exp(-2.0/5.0 * (std::pow(xx-L/2.0,2) + std::pow(yy-H/2.0,2))) : 0; 
-
-    // return 5.0 * std::exp(-2.0/5.0 * (std::pow(xx-L/2.0,2) + std::pow(yy-H/2.0,2)));
-
-    //const double rx = std::abs(xx-L/2.);
-    //const double ry = std::abs(yy-H/2.); 
-
-    double z = 0.;
-    /*
-       const double r = std::sqrt((xx-L/2.)*(xx-L/2.) + (yy-H/2.)*(yy-H/2.));
-       if (r<=10 && r<= 10)
-       {
-       z = 60;
-       }
-       else if (r>10 && r<=50 && r>10 && r<=50)
-       {
-       z = -r + 70.;
-       }
-       else
-       {
-       z = 15.;
-       }
-       */
-    // const double alfa = std::tan(15.*M_PI/180);
-    // const double beta = L*alfa;
-    // z = -alfa*xx + beta;
-
-    // if (xx<50)
-    // {
-    //   z = -alfa*xx + beta;
-    // }
-    // else 
-    // {
-    //   z = 50.;
-    // }
-    // if (xx<100 && xx>60 && yy>80 && yy<120)
-    // {
-    //   z = 80.;
-    // }
-
-    return(z);
-
+    return(0);
     //return(raster_value(xx,yy,dem));
 }
 
 
 
 using Q1  = q1_vec<distributed_vector>;  // Typedef for distributed q_1 vector
-using Q0  = distributed_vector; //distributed_vector; //std::vector<double>;         // Typedef for local q_0 vector // distributed_vector
+using Q0  = distributed_vector; // Typedef for local q_0 vector
 
 
 #if SET_TEST == 1 
@@ -192,60 +141,13 @@ inline double h0_fun (const double& xx, const double& yy, const double& g)
     double corr = 4.;
     auto H_vortex = [](double s) { 
         return std::cos(2.*s)/8. + s*std::sin(2.*s)/4. + std::cos(2.*s)*std::cos(2.*s)/64. + 3.*s*s/16. + s*std::cos(2.*s)*std::sin(2.*s)/16.;
-        //return s*std::cos(s)*std::sin(s)/4*(std::cos(s)*std::cos(s) + 3./2.) + std::cos(s)*std::cos(s)*(3./(4.*4.) + std::cos(s)*std::cos(s)/16.) + 3./4./2.*s*s/2.;
     };
-    //   auto H_vortex = [](double x) {
-    //     return (35.0 * std::cos(2.0 * x)) / 384.0
-    //          + (35.0 * x * std::sin(2.0 * x)) / 192.0
-    //          + std::pow(std::cos(x), 6) * (std::pow(std::cos(x), 2) / 64.0 + 7.0 / 288.0)
-    //          + (35.0 * std::pow(std::cos(2.0 * x), 2)) / 3072.0
-    //          + (35.0 * std::pow(x, 2)) / 256.0
-    //          + (35.0 * x * std::cos(2.0 * x) * std::sin(2.0 * x)) / 768.0
-    //          + (x * std::pow(std::cos(x), 5) * std::sin(x) * (std::pow(std::cos(x), 2) + 7.0 / 6.0)) / 8.0;
-    // };
-
-
-    // h_ini = h0 - (r<=r0 ? 1./g*(4.*Gamma(g)*r0/M_PI)*(4.*Gamma(g)*r0/M_PI)*(H_vortex(M_PI/2.) - H_vortex(rho/2.))*corr : 0.); //H_vortex(rho/2.);//std::cos(rho)/8. + rho/2.*std::sin(rho)/4. + std::cos(rho)*std::cos(rho)/64. + 3.*rho/2.*rho/2./16. + rho/2.*std::cos(rho)*std::sin(rho)/16.; //h0 - (r<=r0 ? 1./g*(2.*Gamma*r0/M_PI)*(2.*Gamma*r0/M_PI)*(H_vortex(M_PI/2.) - H_vortex(rho/2.))*corr : 0.);
-
-    // h_ini = h0 - (r<=r0)*1./g*(4.*Gamma(g)*r0/M_PI)*(4.*Gamma(g)*r0/M_PI)*(H_vortex(M_PI/2.) - H_vortex(rho/2.));
+    
     h_ini = h0 - (r<=r0)*1./g*(2.*Gamma(g)*r0/M_PI)*(2.*Gamma(g)*r0/M_PI)*(H_vortex(M_PI/2.) - H_vortex(rho/2.))*corr;
-
-
-    // const int N = 64;                 // increase if you want more accuracy
-    // const double R = std::min(r, r0);
-    // double sum = 0.0;
-    // // Simple Simpson’s rule on [0,R]
-    // if (R == 0.0) return h0;
-    // double dr = R / N;
-    // for (int i = 0; i <= N; ++i) {
-    //     double s  = i * dr;
-    //     double w  = (i == 0 || i == N) ? 1.0 : (i % 2 ? 4.0 : 2.0);
-    //     double om = omega(s,g,rho);
-    //     sum += w * (om * om) * s;
-    // }
-    // double integral = (dr / 3.0) * sum;
-    // // add the constant outside support (same value at r >= r0)
-    // // integral up to r0 if r > r0
-    // if (r > r0) {
-    //     // compute once up to r0 for consistency
-    //     // could cache this value; here we recompute simply by setting R=r0
-    //     integral = 0.0;
-    //     double dr0 = r0 / N;
-    //     for (int i = 0; i <= N; ++i) {
-    //         double s  = i * dr0;
-    //         double w  = (i == 0 || i == N) ? 1.0 : (i % 2 ? 4.0 : 2.0);
-    //         double om = omega(s,g,rho);
-    //         integral += w * (om * om) * s;
-    //     }
-    //     integral = (dr0 / 3.0) * integral;
-    // }
-    // h_ini = h0 - (1.0 / g) * integral;
 
 #elif SET_TEST == 2 
     h_ini = 1. + 3.*std::exp(-0.5*10*( (xx-L/4.)*(xx-L/4.) )/(0.2*L/2.)/(0.2*L/2.));
 #endif
-
-    //std::cout << h_ini << std::endl;
 
     return (h_ini);
 
