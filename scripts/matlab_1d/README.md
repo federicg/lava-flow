@@ -1,0 +1,60 @@
+# 1D MATLAB Implementation of the Lava-Flow Scheme
+
+A didactic 1D MATLAB implementation of the finite element time-stepping scheme used in the `lava-flow` C++ code. It solves the linear advection-decay equation
+
+$$\partial_t q + a \, \partial_x q = -\chi \, q$$
+
+on a uniform grid, using the two-stage implicit-explicit (IMEX) Runge-Kutta method described in the companion paper.
+
+---
+
+## Files
+
+- `lava_flow_1d.m` — main script (self-contained, no toolboxes required beyond `fsolve`)
+
+---
+
+## Parameters
+
+| Variable | Description | Default |
+|---|---|---|
+| `a` | Advection speed | `1` |
+| `chi` | Decay coefficient | `0.05` |
+| `num_elements` | Number of cells | `200` |
+| `T` | Final simulation time | `100` |
+| `cfl` | CFL number | `1.22` |
+| `flag_ini` | Initial condition (1 = constant, 2 = Gaussian, 3 = windowed checkerboard) | `2` |
+| `flag_tab` | Coefficient table for the IMEX scheme (0–3, see paper) | `3` |
+
+---
+
+## Usage
+
+1. Open MATLAB and navigate to this folder
+2. Run:
+```matlab
+lava_flow_1d
+```
+3. The script will plot the numerical vs exact solution live during the simulation, and print the final L∞ error.
+
+> **Note:** `fsolve` from the Optimization Toolbox is required for the implicit stages.
+
+---
+
+## Scheme
+
+The method uses a two-stage IMEX-RK approach:
+- **Explicit part** — upwind finite differences on the primal grid (Q0 space)
+- **Implicit part** — mass-lumped Q1 treatment of the source term, leading to a staggered structure
+
+Four coefficient sets are available via `flag_tab`, corresponding to Tables 0–3 in the paper.
+
+---
+
+## Exact Solution
+
+For smooth initial data, the exact solution is
+
+$$q(x,t) = q_0(x - at)\, e^{-\chi t}$$
+
+which is used to compute the L∞ error at each time step.
