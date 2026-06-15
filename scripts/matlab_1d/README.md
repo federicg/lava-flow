@@ -35,7 +35,7 @@ on a uniform grid, using the two-stage implicit-explicit (IMEX) Runge-Kutta meth
 ```matlab
 lava_flow_1d
 ```
-3. The script will plot the numerical vs exact solution live during the simulation, and print the final L∞ error.
+3. The script will plot the numerical vs exact solution live during the simulation, and print the final L$^\infty$ error.
 
 > **Note:** `fsolve` from the Optimization Toolbox is required for the implicit stages.
 
@@ -43,9 +43,11 @@ lava_flow_1d
 
 ## Scheme
 
-The method uses a two-stage IMEX-RK approach:
-- **Explicit part** — upwind finite differences on the primal grid (Q0 space)
-- **Implicit part** — mass-lumped Q1 treatment of the source term, leading to a staggered structure
+The method uses a two-stage IMEX-RK approach solving the linear advection-decay equation on a uniform grid:
+
+- **Stage 1** (`q_2`, defined at half-integer nodes $j+1/2$) — implicit solve on the cell centers (primal grid), coupling an explicit upwind flux term with an implicit decay term
+- **Stage 2** (`q_3`, defined at integer nodes $j$) — implicit solve using fluxes from both the initial solution and stage 1
+- **Update** (`q^{n+1}`) — combines contributions from all stages; the mass-lumped Q1 treatment relocates the degrees of freedom to the dual grid, where `q_3` and `q^{n+1}` live, leading to a staggered structure since stage 1 lives on the primal grid
 
 Four coefficient sets are available via `flag_tab`:
 
