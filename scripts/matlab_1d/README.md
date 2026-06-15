@@ -2,7 +2,7 @@
 
 A didactic 1D MATLAB implementation of the finite element time-stepping scheme used in the `lava-flow` C++ code. It solves the linear advection-decay equation
 
-$$\partial_t q + a \, \partial_x q = -\chi \, q$$
+$$\partial_t q + a  \partial_x q = -\chi  q$$
 
 on a uniform grid, using the two-stage implicit-explicit (IMEX) Runge-Kutta method described in the companion paper.
 
@@ -66,6 +66,6 @@ The default is `flag_tab = 2`.
 
 For smooth initial data, the exact solution is
 
-$$q(x,t) = q_0(x - at)\, e^{-\chi t}$$
+$$q(x,t) = q_0(x - at) e^{-\chi t}$$
 
-which is used to compute the L∞ error at each time step.
+which is used to compute the $$L^\infty$$ error at each time step.
