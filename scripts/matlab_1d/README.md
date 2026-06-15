@@ -35,7 +35,7 @@ on a uniform grid, using the two-stage implicit-explicit (IMEX) Runge-Kutta meth
 ```matlab
 lava_flow_1d
 ```
-3. The script will plot the numerical vs exact solution live during the simulation, and print the final L$^\infty$ error.
+3. The script will plot the numerical vs exact solution live during the simulation, and print the final $$L^\infty$$ error.
 
 > **Note:** `fsolve` from the Optimization Toolbox is required for the implicit stages.
 
