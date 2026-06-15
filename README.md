@@ -56,8 +56,8 @@ After the first `make deps`, subsequent builds only require `make -j$(nproc)`.
 The simulation is configured via JSON input files. Example input files are provided in the repository:
 
 ```bash
-# Lava flow simulation
-mpirun -np NPROCS lava-flow ../glisX_input_lava.json
+# Well-balancing test
+mpirun -np NPROCS lava-flow ../glisX_input-lava-wb.json
 
 # Lava pouring scenario
 mpirun -np NPROCS lava-flow ../glisX_input-lava-pouring.json
