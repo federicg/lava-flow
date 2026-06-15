@@ -64,7 +64,7 @@ ExternalProject_Add(
   UPDATE_COMMAND ""
   DOWNLOAD_EXTRACT_TIMESTAMP TRUE
 )
-
+add_dependencies(octave_file_io_external octave_external)
 # ----------------------------
 # Build BIMPP
 # ----------------------------
