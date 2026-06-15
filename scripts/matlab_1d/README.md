@@ -47,7 +47,16 @@ The method uses a two-stage IMEX-RK approach:
 - **Explicit part** — upwind finite differences on the primal grid (Q0 space)
 - **Implicit part** — mass-lumped Q1 treatment of the source term, leading to a staggered structure
 
-Four coefficient sets are available via `flag_tab`, corresponding to Tables 0–3 in the paper.
+Four coefficient sets are available via `flag_tab`:
+
+| `flag_tab` | Description |
+|---|---|
+| `0` | Coefficients from [Gatti et al., JCP 2024](https://doi.org/10.1016/j.jcp.2024.112798) |
+| `1` | Coefficients from [Gatti et al., CAMWA 2025](https://doi.org/10.1016/j.camwa.2025.02.014) |
+| `2` | Table 2 in [Gatti et al., arXiv 2025](https://arxiv.org/abs/2509.09460) |
+| `3` | Table 3 in [Gatti et al., arXiv 2025](https://arxiv.org/abs/2509.09460) |
+
+The default is `flag_tab = 2`.
 
 ---
 
