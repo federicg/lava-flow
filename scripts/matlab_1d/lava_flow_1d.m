@@ -15,7 +15,7 @@ cfl = 1.22;
 flag_ini = 2; 
 flag_tab = 3; % flag for the coefficients of the method, Table 2, Table 3
 
-%% Part I
+%% Core Part
 
 g  = 9.81;
 L = 500;
@@ -144,21 +144,12 @@ set(gca,"FontSize",16)
 return
 
 
-%%
+%% Internal Functions
 
 
 function [a21, a32, a31, atilde32, atilde21, atilde31, gamma] = set_coefficients(flag_tab)
-
-if (flag_tab==2)
-    % coefficients Table 2,
-    a21 = 1 - sqrt(2)/2;
-    a32 = 1;
-    a31 = 0;
-    atilde32 = sqrt(2)/2;
-    atilde21 = 0;
-    atilde31 = 0;
-    gamma = 1 - sqrt(2)/2;
-elseif (flag_tab==0)
+if (flag_tab==0)
+    % coefficients in https://doi.org/10.1016/j.jcp.2024.112798
     gamma = .5;
     atilde21 = 0;
     a31 = 0;
@@ -167,6 +158,7 @@ elseif (flag_tab==0)
     a21 = .5;
     a32 = 1;
 elseif (flag_tab==1)
+    % coefficients in https://doi.org/10.1016/j.camwa.2025.02.014
     gamma = (1.-sqrt(2.)*.5);
     atilde21 = (-1.+sqrt(2.))*.5;
     a31 = 0;
@@ -174,8 +166,17 @@ elseif (flag_tab==1)
     atilde32 = (sqrt(2.)-1.);
     a21 = .5;
     a32 = 1;
+elseif (flag_tab==2)
+    % coefficients Table 2 in https://arxiv.org/abs/2509.09460
+    a21 = 1 - sqrt(2)/2;
+    a32 = 1;
+    a31 = 0;
+    atilde32 = sqrt(2)/2;
+    atilde21 = 0;
+    atilde31 = 0;
+    gamma = 1 - sqrt(2)/2;
 elseif (flag_tab==3)
-    % coefficients Table 3,
+    % coefficients Table 3 in https://arxiv.org/abs/2509.09460
     a21 = sqrt(2)/4;
     a32 = (sqrt(2)-1)/(3*sqrt(2)-4)/2;
     a31 = 0;
