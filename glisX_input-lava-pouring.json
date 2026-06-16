@@ -37,5 +37,5 @@
     "gravitational field":9.81,
     "material density":2350,
     "home saving directory, i.e., where we can find the directory results":".",
-    "dem file, complete path":"dem.octbin.gz"
+    "dem file, complete path":"../inputs/dem.octbin.gz"
 }

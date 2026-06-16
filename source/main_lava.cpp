@@ -909,6 +909,8 @@ int main (int argc, char **argv)
 
         if (is_space_adaptivity &&  ((space_adapt_count-SPACE_ADAPTDT) >= -std::numeric_limits<double>::epsilon()*SPACE_ADAPTDT))
         {
+            if (rank == 0) std::cout << "Entering space adaptation..." << std::endl;
+
             Q1 only_h (ln_nodes);
             bim2a_solution_with_ghosts (tmsh, only_h);
             for (auto idx = only_h.get_range_start (); idx != only_h.get_range_end (); ++idx)
