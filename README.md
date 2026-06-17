@@ -76,10 +76,10 @@ Once runned the code, call from the build directory
 If you use this code in your research, please cite:
 
 ```bibtex
-@misc{lava-flow,
-  author = {TODO},
-  title  = {lava-flow},
-  year   = {TODO},
-  url    = {TODO}
+@article{gatti2025second,
+  title={Second-order Optimally Stable IMEX (pseudo-) staggered Galerkin discretization: application to lava flow modeling},
+  author={Gatti, Federico and Orlando, Giuseppe},
+  journal={arXiv preprint arXiv:2509.09460},
+  year={2025}
 }
 ```
