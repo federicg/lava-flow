@@ -1070,6 +1070,7 @@ int main (int argc, char **argv)
             soldd_dyn               = soldd;
             sol_2_dyn               = soldd;
             incr_dyn                = incr;
+            incr_vent_dyn           = incr;
             incr_second_dyn         = incr;
             incr_anti_diff_dyn      = incr_anti_diff;
             P_plus_dyn              = incr;
