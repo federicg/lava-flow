@@ -137,7 +137,8 @@ void TG2_scheme::compute_dt_adaptive (tmesh::quadrant_iterator quadrant)
         a_coeff = h1+h2+h3;
         b_coeff = - (h1*(time+timed) + h2*(time+timedd) + h3*(timed+timedd));
 
-        Nu_hmean_cell += (mult_coeff_dt*a_coeff*a_coeff*(time*time+time*timed+timed*timed) + a_coeff*(b_coeff-dh_t)*(time+timed) + (b_coeff-dh_t)*(b_coeff-dh_t));
+        Nu_hmean_cell += (mult_coeff_dt*a_coeff*a_coeff*(time*time+time*timed+timed*timed) 
+                + a_coeff*(b_coeff-dh_t)*(time+timed) + (b_coeff-dh_t)*(b_coeff-dh_t));
     }
     Nu_hmean_cell *= .25;
     nu_htot += Nu_hmean_cell*(time-timed)*(time-timed); // the dimension is length^2, this is eta^2
@@ -997,31 +998,46 @@ void TG2_scheme::solve_non_lin(const int kk)
     // save here the nodal contributions coming from the second step,
     const auto stage_time_2 = timed + c_expl_2;
     h2_c  = (h_c  - h_c_old)/dt_expl_32  
-        + (incr.get_owned_data ()[kk  ] + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk  ] + incr_second.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ];
+        + (incr.get_owned_data ()[kk  ] 
+                + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk  ] 
+                + incr_second.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ];
 
     Ux2_c = (Ux_c - Ux_c_old)/dt_expl_32 
-        + (incr.get_owned_data ()[kk+1] + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+1] + incr_second.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1];
+        + (incr.get_owned_data ()[kk+1] 
+                + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+1] 
+                + incr_second.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1];
 
     Uy2_c = (Uy_c - Uy_c_old)/dt_expl_32 
-        + (incr.get_owned_data ()[kk+2] + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+2] + incr_second.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2];
+        + (incr.get_owned_data ()[kk+2] 
+                + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+2] 
+                + incr_second.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2];
 
     Th2_c = (Th_c - Th_c_old)/dt_expl_32 
-        + (incr.get_owned_data ()[kk+3] + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+3] + incr_second.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3];
+        + (incr.get_owned_data ()[kk+3] 
+                + Q_vent_fun(stage_time_2)*incr_vent.get_owned_data ()[kk+3] 
+                + incr_second.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3];
 
     // compute here the q3 solution,
     const auto stage_time_3 = timed + c_expl_3;
-    h_c  += dt_expl_32*(incr.get_owned_data ()[kk  ] + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ]; // there is no stiff source term in the mass equation
-    h_c  *= (h_c>0.);
+    h_c  += dt_expl_32*(incr.get_owned_data ()[kk  ] 
+            + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ]; // there is no stiff source term in the mass equation
+//    h_c  *= (h_c>0.);
 
-    Th_c += dt_expl_32*(incr.get_owned_data ()[kk+3] + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3]
-        + dt_32*incr_second.get_owned_data ()[kk+3]/mass.get_owned_data ()[kk+3] + dt_31*Th_src_formula(h_c_old, Ux_c_old, Uy_c_old, Th_c_old, T_env);
-    Th_c *= (Th_c>0.);
+    Th_c += dt_expl_32*(incr.get_owned_data ()[kk+3] 
+            + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3]
+        + dt_32*incr_second.get_owned_data ()[kk+3]/mass.get_owned_data ()[kk+3] 
+        + dt_31*Th_src_formula(h_c_old, Ux_c_old, Uy_c_old, Th_c_old, T_env);
+//    Th_c *= (Th_c>0.);
 
-    Ux_c += dt_expl_32*(incr.get_owned_data ()[kk+1] + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1]
-        + dt_32*incr_second.get_owned_data ()[kk+1]/mass.get_owned_data ()[kk+1] + dt_31*Ux_src_formula(h_c_old, Ux_c_old, 0., Th_c);
+    Ux_c += dt_expl_32*(incr.get_owned_data ()[kk+1] 
+            + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1]
+        + dt_32*incr_second.get_owned_data ()[kk+1]/mass.get_owned_data ()[kk+1] 
+        + dt_31*Ux_src_formula(h_c_old, Ux_c_old, 0., Th_c);
 
-    Uy_c += dt_expl_32*(incr.get_owned_data ()[kk+2] + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2]
-        + dt_32*incr_second.get_owned_data ()[kk+2]/mass.get_owned_data ()[kk+2] + dt_31*Uy_src_formula(h_c_old, 0., Uy_c_old, Th_c);
+    Uy_c += dt_expl_32*(incr.get_owned_data ()[kk+2] 
+            + Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2]
+        + dt_32*incr_second.get_owned_data ()[kk+2]/mass.get_owned_data ()[kk+2] 
+        + dt_31*Uy_src_formula(h_c_old, 0., Uy_c_old, Th_c);
 
     if (std::isnan(Th_c) || std::isnan(h_c) || std::isnan(Ux_c) || std::isnan(Uy_c))
     {
@@ -1034,7 +1050,7 @@ void TG2_scheme::solve_non_lin(const int kk)
     Uy_c = h_c>epsilon ? Uy_c/(1.-dt_33*Uy_src_formula(h_c, 0., 1., Th_c)) : 0.;
 
     Th_c = h_c>epsilon ? (Th_c + dt_33*Th_src_formula(h_c, Ux_c, Uy_c, 0., T_env))/(1.-dt_33*Th_src_formula(h_c, Ux_c, Uy_c, 1., 0.)) : 0.;
-    Th_c *= (Th_c>0);
+//    Th_c *= (Th_c>0);
 }
 
 void TG2_scheme::compute_updated_sol(tmesh::quadrant_iterator quadrant)
@@ -1134,7 +1150,6 @@ void TG2_scheme::compute_updated_sol(tmesh::quadrant_iterator quadrant)
         const int ii_1 = ii%2;
         const int ii_2 = ii/2;
 
-        //TODO: check the vent here!
         const auto flux_on_the_node_h  = (grad_cell_h [0]+grad_cell_h [1])*area/4.*isdof_or_hanging[ii];
         const auto flux_on_the_node_Ux = (grad_cell_Ux[0]+grad_cell_Ux[1] - (src_slope_formula(h_cell_x_0, slope_x_0) + 
                     src_slope_formula(h_cell_x_1, slope_x_1))*.5)*area/4.*isdof_or_hanging[ii];
@@ -1188,10 +1203,18 @@ void TG2_scheme::compute_updated_sol(const int kk)
     // compute now the updated solution,
     const auto stage_time_3 = timed + c_expl_3;
 #if SET_COEFFICIENTS >= 3 
-    h_c  = h_c_old  + b_2*h2_c  + b_3*(                                                 - (incr.get_owned_data ()[kk  ] - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ]);
-    Ux_c = Ux_c_old + b_2*Ux2_c + b_3*(Ux_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c       ) - (incr.get_owned_data ()[kk+1] - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1]);
-    Uy_c = Uy_c_old + b_2*Uy2_c + b_3*(Uy_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c       ) - (incr.get_owned_data ()[kk+2] - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2]);
-    Th_c = Th_c_old + b_2*Th2_c + b_3*(Th_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c, T_env) - (incr.get_owned_data ()[kk+3] - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3]);
+    h_c  = h_c_old  + b_2*h2_c  
+        + b_3*(                                                 - (incr.get_owned_data ()[kk  ] 
+                    - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk  ])/mass.get_owned_data ()[kk  ]);
+    Ux_c = Ux_c_old + b_2*Ux2_c 
+        + b_3*(Ux_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c       ) - (incr.get_owned_data ()[kk+1] 
+                    - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+1])/mass.get_owned_data ()[kk+1]);
+    Uy_c = Uy_c_old + b_2*Uy2_c 
+        + b_3*(Uy_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c       ) - (incr.get_owned_data ()[kk+2] 
+                    - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+2])/mass.get_owned_data ()[kk+2]);
+    Th_c = Th_c_old + b_2*Th2_c 
+        + b_3*(Th_src_formula(h3_c, Ux3_c, Uy3_c, Th3_c, T_env) - (incr.get_owned_data ()[kk+3] 
+                    - Q_vent_fun(stage_time_3)*incr_vent.get_owned_data ()[kk+3])/mass.get_owned_data ()[kk+3]);
 #else
     h_c  = h3_c ;
     Ux_c = Ux3_c;

@@ -812,7 +812,7 @@ int main (int argc, char **argv)
             sol_dyn.get_owned_data ()[kk] += stp.dt_expl_32*incr_dyn.get_owned_data ()[kk]/mass_dyn.get_owned_data ()[kk];
         }
         sol_dyn.assemble(replace_op); 
-
+/*
         for (auto quadrant = tmsh.begin_quadrant_sweep ();
                 quadrant != tmsh.end_quadrant_sweep ();
                 ++quadrant)
@@ -829,6 +829,7 @@ int main (int argc, char **argv)
         bim2a_solution_with_ghosts (tmsh, sol_dyn, replace_op, ordUx, false);
         bim2a_solution_with_ghosts (tmsh, sol_dyn, replace_op, ordUy, false);
         bim2a_solution_with_ghosts (tmsh, sol_dyn, replace_op, ordTh);
+*/
 
         incr_dyn.get_owned_data ().assign (incr_dyn.get_owned_data ().size (), 0.0);
         incr_dyn.assemble (replace_op);
