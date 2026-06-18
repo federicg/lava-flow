@@ -1129,25 +1129,6 @@ void TG2_scheme::compute_updated_sol(tmesh::quadrant_iterator quadrant)
                              (Th_flux_formula_y(hdof[3], Uxdof[3], Uydof[3], Thdof[3]) - 
                               Th_flux_formula_y(hdof[1], Uxdof[1], Uydof[1], Thdof[1])) ) / Dy};
 
-    // add the vent contribution,
-    const double delta_x_vc = x_c - x_v;
-    const double delta_y_vc = y_c - y_v;
-
-    const double extr_x_a = (-Dx/2.+delta_x_vc)/std::sqrt(2.*sigma_vent);
-    const double extr_x_b = (+Dx/2.+delta_x_vc)/std::sqrt(2.*sigma_vent);
-
-    const double extr_y_a = (-Dy/2.+delta_y_vc)/std::sqrt(2.*sigma_vent);
-    const double extr_y_b = (+Dy/2.+delta_y_vc)/std::sqrt(2.*sigma_vent);
-
-    const double common_contr_x = -sigma_vent*(std::exp(-extr_x_b*extr_x_b) - std::exp(-extr_x_a*extr_x_a)) + 
-        std::sqrt(M_PI)/2.*(Dx/2. - delta_x_vc)*(std::erf(extr_x_b) - std::erf(extr_x_a))*std::sqrt(2.*sigma_vent);
-    const double common_contr_y = -sigma_vent*(std::exp(-extr_y_b*extr_y_b) - std::exp(-extr_y_a*extr_y_a)) + 
-        std::sqrt(M_PI)/2.*(Dy/2. - delta_y_vc)*(std::erf(extr_y_b) - std::erf(extr_y_a))*std::sqrt(2.*sigma_vent);
-
-    std::array<double, 2> contrx = {Dx*std::sqrt(M_PI)/2.*(std::erf(extr_x_b) - std::erf(extr_x_a))*std::sqrt(2.*sigma_vent) - common_contr_x, common_contr_x};
-    std::array<double, 2> contry = {Dy*std::sqrt(M_PI)/2.*(std::erf(extr_y_b) - std::erf(extr_y_a))*std::sqrt(2.*sigma_vent) - common_contr_y, common_contr_y};
-
-
     for (int ii = 0; ii < 4; ++ii){
  
         const int ii_1 = ii%2;
